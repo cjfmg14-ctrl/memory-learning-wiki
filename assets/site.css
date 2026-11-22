@@ -1,0 +1,197 @@
+:root {
+  color-scheme: light;
+  --ink: #261940;
+  --muted: #544665;
+  --purple: #552d87;
+  --border: #dfd2ed;
+  --paper: #fffcff;
+  --glow: linear-gradient(115deg, #e1d0fb, #f4d5ec 53%, #daecff);
+  font: 16px/1.7 "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  background: radial-gradient(ellipse at 92% 0, #e0ebff, transparent 54%), #f6f1fb;
+}
+a { color: var(--purple); text-underline-offset: .18em; }
+a:focus-visible, [tabindex]:focus-visible { outline: 3px solid #713ea6; outline-offset: 4px; }
+.skip-link {
+  position: absolute;
+  z-index: 5;
+  top: 8px;
+  left: 10px;
+  padding: 8px 14px;
+  transform: translateY(-150%);
+  background: white;
+}
+.skip-link:focus { transform: translateY(0); }
+.masthead { background: #fbf7ff; border-bottom: 1px solid var(--border); }
+.masthead-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  width: min(1110px, calc(100% - 40px));
+  min-height: 66px;
+  margin: auto;
+  gap: 4px 12px;
+  padding-block: 8px;
+}
+.brand {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  color: var(--ink);
+  font-weight: 790;
+  text-decoration: none;
+}
+.orb {
+  display: block;
+  flex: 0 0 19px;
+  height: 19px;
+  border: 1px solid #9f79bd;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 20%, #fff, #f5bce8 37%, #b690e7 63%, #8abbec);
+}
+nav { display: flex; flex-wrap: wrap; gap: 4px 17px; align-items: center; }
+nav a { font-size: .92rem; font-weight: 720; }
+
+.landing, .wiki-page {
+  width: min(1110px, calc(100% - 40px));
+  margin: clamp(20px, 5vw, 60px) auto 44px;
+}
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 20px 42px;
+  min-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: 29px;
+  padding: clamp(26px, 5vw, 66px);
+  background: radial-gradient(ellipse at 85% 80%, #f6d7ee, transparent 48%),
+              linear-gradient(120deg, #fcf5ff, #e7e7fb 62%, #dbebff);
+  box-shadow: 0 20px 65px #49206e11;
+}
+.intro h1 {
+  max-width: 12em;
+  margin: 0 0 17px;
+  font-size: clamp(2.25rem, 5.5vw, 4.25rem);
+  line-height: 1.18;
+  letter-spacing: -.052em;
+  text-wrap: balance;
+}
+.intro p { max-width: 29em; margin: 0; font-size: 1.06rem; color: var(--muted); }
+.study-art {
+  width: min(100%, 300px);
+  aspect-ratio: 1.2;
+  position: relative;
+  justify-self: center;
+  background: radial-gradient(ellipse at center, #e5cdf8b0, transparent 70%);
+}
+.study-art::before {
+  position: absolute;
+  inset: 15% -1%;
+  border: 1px solid #9e75bf85;
+  border-radius: 50%;
+  transform: rotate(-26deg);
+  content: "";
+}
+.study-art span, .study-art i, .study-art b { position: absolute; border: 1px solid #9871be; }
+.study-art span {
+  inset: 16% 18% 17% 29%;
+  transform: rotate(13deg);
+  border-radius: 9px;
+  background: rgba(255,255,255,.72);
+  box-shadow: 3px 5px 9px #76579d22;
+}
+.study-art i {
+  inset: 20% 21% 24% 23%;
+  transform: rotate(-19deg);
+  border-radius: 10px;
+  background: linear-gradient(90deg, #ae87d6 7%, #dbc7f5 8%, transparent 13%), var(--glow);
+  box-shadow: 0 5px #f9e6fb, 0 8px #8867b7, 2px 13px 15px #71519f3b;
+}
+.study-art b {
+  inset: 55% 51% 20% 9%;
+  transform: rotate(8deg);
+  border-radius: 7px;
+  background: linear-gradient(135deg, #fff, #e7d7fa, #d5e8ff);
+  box-shadow: 3px 5px 8px #604b8c38;
+}
+.study-art b::after {
+  position: absolute;
+  inset: 33% 20%;
+  border-block: 3px solid #a582cc;
+  content: "";
+}
+.activities { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; margin-top: 16px; }
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 17px 23px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  text-decoration: none;
+  background: var(--paper);
+}
+.entry strong { font-size: 1.12rem; }
+.entry span { color: var(--muted); }
+.entry-primary { color: white; background: #552e85; border-color: transparent; }
+.entry-primary span { color: #f1e6fb; }
+.entry:hover { box-shadow: 0 0 0 3px #e9d6fa; }
+
+.wiki-page { max-width: 960px; }
+article {
+  padding: clamp(20px, 4.5vw, 54px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--paper);
+  overflow-wrap: anywhere;
+}
+article h1, article h2, article h3, article h4 { line-height: 1.37; }
+article h1 { font-size: clamp(1.7rem, 4vw, 2.55rem); margin: 0 0 1.1em; }
+article h2 {
+  margin: 1.55em 0 .55em;
+  font-size: clamp(1.28rem, 2.5vw, 1.62rem);
+  border-bottom: 1px solid #e8def3;
+  padding-bottom: .4em;
+}
+article h3 { margin: 1.35em 0 .4em; font-size: 1.15rem; }
+article p, article ul, article ol { margin-block: .55em .8em; }
+article ul, article ol { padding-inline-start: 1.32em; }
+article li { margin-block: .25em; }
+article blockquote {
+  margin: 1em 0;
+  padding: .25em 1em;
+  border-inline-start: 3px solid #b696de;
+  background: #f5edfb;
+}
+article hr { height: 1px; background: #efe5f5; border: 0; margin: 1.55em 0; }
+.line-anchor { scroll-margin-top: 22px; }
+:is(p, li, tr, blockquote):has(> .line-anchor:target) { background: #f0e3ff; }
+tr:has(.line-anchor:target) { background: #f0e3ff; }
+.table-scroll { max-width: 100%; margin-block: 1em; overflow-x: auto; }
+table { min-width: 100%; border-collapse: collapse; font-size: .92rem; }
+th, td {
+  padding: .56em .75em;
+  border-bottom: 1px solid #e5d9f0;
+  vertical-align: top;
+  min-width: 5rem;
+}
+th { color: #3d225f; background: #f1e7fa; }
+.math { font: 1.03em/1.6 Georgia, "Microsoft JhengHei", serif; }
+.math-block { margin: 1em 0; padding: .6em 1em; background: #f5eefb; border-radius: 8px; }
+
+@media (max-width: 640px) {
+  .masthead-inner, .landing, .wiki-page { width: calc(100% - 24px); }
+  .intro { grid-template-columns: minmax(0, 1fr); min-height: 0; border-radius: 23px; }
+  .study-art { width: min(100%, 184px); }
+  .activities { grid-template-columns: minmax(0, 1fr); }
+  article { border-radius: 16px; }
+}

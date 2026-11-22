@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>簡報預覽</title><style>:root {
+  color-scheme: light;
+  --ink: #21183e;
+  --muted: #5a5072;
+  --purple: #5e34a0;
+  --rule: #e3dcef;
+  --violet: #9766e4;
+  --blue: #5d9fd8;
+  --highlight: #f2ebff;
+  --sheet: #fdfbff;
+  --radiance: linear-gradient(105deg, #aa87ed, #f4b6db 53%, #9ad6ef);
+  --chrome: linear-gradient(145deg, #fdf1ff 4%, #d4bff9 45%, #b2cfff 80%, #edc9fe);
+  font: 16px/1.6 "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: radial-gradient(ellipse at 5% 0, #e9dafa 0, transparent 52%),
+              radial-gradient(ellipse at 97% 100%, #dceaff 0, transparent 60%), #f3edf9;
+  min-height: 100vh;
+}
+button { font: inherit; }
+button:focus-visible, [tabindex="-1"]:focus-visible { outline: 3px solid #6d41af; outline-offset: 3px; }
+button:focus-visible { position: relative; z-index: 1; }
+p, h1, h2, figure { margin: 0; }
+.punctuation { display: none; }
+.keep-together { white-space: nowrap; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: #fbf8ff;
+  border-bottom: 1px solid var(--rule);
+}
+.topbar-inner {
+  width: min(1180px, calc(100% - 48px));
+  min-height: 70px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.identity {
+  min-width: 0;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 750;
+  color: #3c2b61;
+  line-height: 1.3;
+}
+.identity-mark {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #a17ace;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 25%, #fff 0, #f9c6ed 28%, #c193f4 57%, #83c4ed 82%);
+  box-shadow: inset 0 -3px 5px #614a8c44, 0 2px 4px #b48ddd48;
+}
+.navigation { display: flex; align-items: center; gap: 8px; }
+.navigation button {
+  display: grid;
+  place-items: center;
+  min-width: 46px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid #d5c5ea;
+  border-radius: 13px;
+  background: #fff;
+  color: #4b2b7d;
+  font: 700 22px/1 system-ui, sans-serif;
+  cursor: pointer;
+}
+.navigation [data-next]:enabled { background: #4f2b7d; color: #fff; border-color: transparent; }
+.navigation button:enabled:hover { box-shadow: 0 0 0 3px #eedbff; }
+.navigation button:disabled { color: #776989; background: #f1eaf7; cursor: default; }
+.page-count {
+  min-width: 63px;
+  text-align: center;
+  white-space: nowrap;
+  font: 650 .85rem/1.3 ui-monospace, Consolas, monospace;
+  color: var(--muted);
+}
+.progress { height: 3px; background: #eee5f8; }
+.progress::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left;
+  background: var(--radiance);
+  content: "";
+}
+
+main { padding: 34px 24px 42px; }
+[data-page] { max-width: 1180px; margin: 0 auto; }
+.slide {
+  position: relative;
+  isolation: isolate;
+  min-height: 685px;
+  padding: clamp(32px, 4.1vw, 62px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(20px, 3vw, 36px);
+  border: 1px solid #ddd0ec;
+  border-radius: 31px;
+  background: radial-gradient(ellipse at 96% 0, #efedff 0, transparent 49%), var(--sheet);
+  box-shadow: 0 18px 45px #44236313, inset 0 1px #fff;
+}
+.slide::before {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 34px;
+  right: 34px;
+  height: 3px;
+  border-radius: 0 0 10px 10px;
+  background: var(--radiance);
+  content: "";
+}
+.slide-heading h1, .slide-heading h2 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 820;
+  line-height: 1.21;
+  letter-spacing: -.048em;
+  text-wrap: balance;
+}
+.lesson-body, .quiz-body { min-width: 0; }
+.lesson-body {
+  display: grid;
+  align-items: start;
+  gap: 14px;
+}
+.panel {
+  min-width: 0;
+  border: 1px solid var(--rule);
+  border-radius: 19px;
+  padding: clamp(15px, 2vw, 24px);
+  background: #fff;
+}
+.panel p { overflow-wrap: anywhere; }
+.panel.text { color: #4b4260; background: #fcf9ff; }
+.page-sources {
+  grid-column: 1 / -1;
+  grid-row: auto;
+  align-self: end;
+  min-width: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+  color: var(--purple);
+  scroll-margin-top: 85px;
+  font-size: .82rem;
+}
+.page-sources summary { width: fit-content; min-height: 30px; font-weight: 720; cursor: pointer; }
+.page-sources:has(details[open]) { align-self: stretch; }
+.study-plot [data-label]::before,
+.score-graphic [data-label]::before,
+.practice-head [data-label]::before { content: attr(data-label); }
+.source-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); gap: 14px; }
+.source-list, .source-work ul { list-style: none; margin: 4px 0 0; padding: 0; }
+.source-work { min-width: 0; border-left: 2px solid #dbc8f4; padding-left: 10px; overflow-wrap: anywhere; }
+.source-work a { color: #513278; text-underline-offset: 3px; }
+.work-title { font-weight: 760; }
+.work-author { margin: 3px 0 8px; color: var(--muted); }
+.source-location + .source-location { margin-top: 4px; }
+.source-location span { color: var(--muted); margin-inline-end: .35em; }
+.phrase { font-weight: 780; }
+.panel p .phrase::after, .protocol-title .phrase::after { content: "　"; }
+.panel.steps:not(.takeaways) {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border-color: #e0d1fa;
+  background: linear-gradient(110deg, #f2e8ff, #f9f5ff 50%, #eff5ff);
+}
+
+.slide-p01 {
+  display: grid;
+  grid-template: auto auto / 1.07fr .93fr;
+  align-content: center;
+  gap: 24px;
+  background:
+    radial-gradient(ellipse at 100% 0, #d6e5ff, transparent 55%),
+    radial-gradient(ellipse at 75% 85%, #f5d8ee, transparent 50%), #fcf7ff;
+}
+.slide-p01 .slide-heading { grid-column: 1; grid-row: 1; }
+.slide-p01 h1 { font-size: clamp(2.65rem, 4.9vw, 4.4rem); text-wrap: initial; }
+.body-p01 { grid-column: 1; grid-row: 2; }
+.body-p01 .case { font-size: 1.12rem; font-weight: 740; background: #ffffffa8; border-left: 4px solid #b48deb; }
+.body-p01 .text { padding: 0 4px; background: none; border: 0; }
+.cover-art {
+  grid-area: 1 / 2 / 3 / 3;
+  align-self: center;
+  position: relative;
+  width: min(100%, 460px);
+  aspect-ratio: 1.08;
+  justify-self: center;
+  border-radius: 32px;
+  background: radial-gradient(ellipse at 55% 51%, #f7d0f596, #e3d2fc50 54%, transparent 72%);
+}
+.orbit, .paper, .art-book, .art-star { position: absolute; }
+.orbit { border: 1px solid #ad8bd281; border-radius: 50%; transform: rotate(-29deg); }
+.orbit-outer { inset: 14% 4%; }
+.orbit-inner { inset: 22% 11%; transform: rotate(27deg); border-color: #9377c46a; }
+.paper {
+  border-radius: 12px 20px 12px 12px;
+  border: 1px solid #a187cd;
+  background: linear-gradient(142deg, #fff, #f3e8ff 46%, #d3dfff);
+  box-shadow: 6px 11px 22px #4c2c7d2a;
+}
+.paper-back {
+  width: 39%;
+  height: 42%;
+  top: 18%;
+  right: 13%;
+  transform: rotate(19deg);
+}
+.paper-front {
+  left: 13%;
+  bottom: 18%;
+  width: 36%;
+  height: 27%;
+  display: grid;
+  align-content: center;
+  gap: 10%;
+  padding: 8%;
+  transform: rotate(9deg);
+}
+.paper-front i { height: 4px; background: #b294dd; border-radius: 10px; }
+.paper-front i:last-child { width: 58%; background: #efafd8; }
+.art-book {
+  top: 27%;
+  left: 25%;
+  width: 54%;
+  height: 49%;
+  transform: rotate(-19deg) skewY(2deg);
+  border: 1px solid #8862bf;
+  border-radius: 12% 6% 7% 12%;
+  background: var(--chrome);
+  box-shadow: 0 9px 0 #7651ad, 0 12px 0 #fff0ff, 0 16px 0 #8863bd, 0 27px 24px #43246a37;
+}
+.art-book::before {
+  position: absolute;
+  inset: 0 auto 0 9%;
+  width: 8%;
+  border-inline: 1px solid #9875c8;
+  background: linear-gradient(90deg, #b48cd9, #e0c3fa 61%, #a68bc9);
+  content: "";
+}
+.art-book i:first-child {
+  position: absolute;
+  inset: 21% 16% auto 28%;
+  height: 33%;
+  border: 1px solid #956bc177;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 9px, #a887de32 10px 11px),
+    repeating-linear-gradient(90deg, transparent 0 9px, #a887de32 10px 11px), #fbf8ff6e;
+  border-radius: 8px;
+}
+.art-book i:last-child {
+  position: absolute;
+  top: 62%;
+  left: 29%;
+  width: 23%;
+  height: 4%;
+  border-radius: 10px;
+  background: #9979cb;
+}
+.art-star { width: 9%; aspect-ratio: 1; background: #a36ed5; clip-path: polygon(50% 0, 60% 38%, 100% 50%, 60% 60%, 50% 100%, 38% 60%, 0 50%, 38% 38%); }
+.star-top { top: 15%; left: 17%; }
+.star-bottom { bottom: 16%; right: 13%; background: #6189c0; width: 7%; }
+
+.tiles ul, .protocol ol {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.tiles li, .protocol li {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+  padding: clamp(12px, 1.6vw, 19px);
+  border: 1px solid #e9ddf5;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #f5ebff, #fbf8ff 60%, #f6f4ff);
+}
+.tiles li:nth-child(2n), .protocol li:nth-child(2n) {
+  border-color: #dce6fb;
+  background: linear-gradient(150deg, #ebf2ff, #f6f9ff 65%, #f0f5ff);
+}
+.tiles .detail { display: block; margin-top: 3px; color: #4e4462; }
+.compare-p05 ul, .takeaways ul { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.compare-p07 ul, .compare-p08 ul { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.compare-p07 li, .compare-p08 li { flex-direction: row; align-items: center; gap: 13px; }
+.protocol ol { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.protocol li:last-child { border-style: dashed; border-color: #a481c6; }
+.protocol-title, .schedule-title { font-weight: 780; margin-bottom: 13px; }
+.protocol-title .detail { font-size: .9rem; color: #65458e; }
+
+.mini {
+  flex: 0 0 auto;
+  display: inline-grid;
+  width: 52px;
+  height: 43px;
+  align-items: center;
+  justify-items: center;
+  border-radius: 11px;
+  border: 1px solid #cdb8e9;
+  background: linear-gradient(140deg, #fff, #e5d1fc 73%, #cee2ff);
+  position: relative;
+}
+.mini i, .mini::after, .mini::before { position: absolute; }
+.open-book i, .closed-book i, .notes i, .highlight i, .flash-front i, .flash-back i {
+  display: block;
+  border: 1px solid #7350a3;
+  background: #fffaff;
+}
+.open-book i { width: 16px; height: 17px; top: 13px; border-radius: 2px; transform: skewY(12deg); left: 10px; }
+.open-book i:nth-child(2) { transform: skewY(-12deg); left: 25px; }
+.open-book i:last-child { display: none; }
+.closed-book i:first-child { width: 23px; height: 25px; transform: rotate(-12deg); border-radius: 2px 4px 4px 2px; background: #b391e5; box-shadow: inset 4px 0 #9472cc, 1px 3px #decff5; }
+.closed-book i:not(:first-child), .notes i:last-child, .highlight i:last-child { display: none; }
+.notes i:first-child, .highlight i:first-child { width: 27px; height: 26px; border-radius: 4px; transform: rotate(-6deg); }
+.notes i:nth-child(2), .highlight i:nth-child(2) { width: 16px; height: 8px; border-width: 1px 0; background: transparent; transform: rotate(-6deg); }
+.highlight i:nth-child(2) { background: #f4b5df; border-color: #aa64a4; }
+.flash-front i:first-child, .flash-back i:first-child { width: 30px; height: 21px; border-radius: 4px; transform: rotate(-9deg); }
+.flash-front i:nth-child(2), .flash-back i:nth-child(2) { width: 15px; border-width: 1px 0 0; transform: rotate(-9deg); }
+.flash-front i:nth-child(3) { width: 13px; border-width: 2px 0 0; border-color: #b585dc; transform: translateY(4px) rotate(-9deg); }
+.flash-back i:nth-child(3) { display: none; }
+.clustered i, .spaced i, .blocked i, .mixed i {
+  width: 7px;
+  height: 7px;
+  border-radius: 3px;
+  background: #8c60ca;
+  transform: translateX(-13px);
+}
+.clustered i:nth-child(2), .blocked i:nth-child(2), .mixed i:nth-child(2) { transform: translateX(-5px); }
+.clustered i:last-child, .blocked i:last-child, .mixed i:last-child { transform: translateX(3px); }
+.spaced i:nth-child(2) { transform: none; }
+.spaced i:last-child { transform: translateX(13px); }
+.blocked i, .mixed i { transform: translateX(-12px); box-shadow: 24px 0 #4e86bd; }
+.blocked i:nth-child(2), .mixed i:nth-child(2) { transform: translateX(-4px); box-shadow: 24px 0 #4e86bd; }
+.blocked i:last-child, .mixed i:last-child { transform: translateX(4px); box-shadow: 24px 0 #4e86bd; }
+.blocked i, .mixed i { left: 16px; }
+.mixed i:nth-child(2), .mixed i:last-child { box-shadow: none; }
+.mixed i:nth-child(2) { background: #4e86bd; box-shadow: 24px 0 #8c60ca; }
+.mixed i:last-child { box-shadow: 24px 0 #4e86bd; }
+.check-mark::after {
+  content: "";
+  border: solid #764aa8;
+  border-width: 0 0 3px 3px;
+  width: 17px;
+  height: 9px;
+  transform: translateY(-2px) rotate(-45deg);
+}
+.panel.steps > .check-mark { width: 40px; height: 36px; }
+.day-icon::before {
+  content: "";
+  width: 24px;
+  height: 24px;
+  background: #fbf7ff;
+  border: 1px solid #7862aa;
+  border-top: 6px solid #9873cf;
+  border-radius: 4px;
+}
+.day-icon::after { content: ""; width: 7px; height: 7px; transform: translateY(3px); border-radius: 2px; background: #a780d1; }
+
+.body-p03, .body-p05 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.body-p03 figure, .body-p05 figure { grid-column: 1 / -1; }
+.body-p04 { grid-template-columns: 2.2fr 1fr; }
+.body-p04 > .text:first-child { grid-column: 1 / -1; }
+.body-p04 > .chart { grid-row: span 2; }
+.body-p07, .body-p08 { grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr); }
+.body-p08 > .steps { grid-column: 1 / -1; }
+.screen-reader {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  table-layout: fixed;
+  white-space: nowrap;
+}
+.chart { position: relative; }
+.chart-label, .plot-caption { font-size: .82rem; color: var(--muted); font-weight: 720; }
+.study-plot, .score-graphic { --series-0: #7343ab; --series-1: #1e608d; }
+.study-plot .series-0, .score-graphic .series-0 { --series-color: var(--series-0); }
+.study-plot .series-1, .score-graphic .series-1 { --series-color: var(--series-1); }
+.plot-legend { display: flex; gap: 6px 14px; font-size: .86rem; font-weight: 730; flex-wrap: wrap; margin-block: 8px 16px; }
+.plot-legend span { display: flex; align-items: center; gap: 6px; color: var(--series-color); }
+.plot-legend span::after { content: ""; order: -1; width: .58rem; height: .58rem; border-radius: 2px; background: currentColor; }
+.sample-field {
+  --sample-height: clamp(115px, 10vw, 156px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(9px, 1.7vw, 24px);
+  position: relative;
+  margin-left: 34px;
+}
+.sample-scale { position: absolute; inset: 0 0 auto; height: var(--sample-height); }
+.plot-tick { position: absolute; left: 0; top: var(--y); }
+.plot-tick::before {
+  position: absolute;
+  right: calc(100% + 6px);
+  top: 0;
+  transform: translateY(-50%);
+  font: 650 .68rem/1.2 Consolas, monospace;
+  color: var(--muted);
+}
+.sample-pair {
+  order: -1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  gap: clamp(8px, 1.4vw, 20px);
+  height: var(--sample-height);
+  background: repeating-linear-gradient(to bottom, #e5ddf0 0 1px, transparent 1px 50%), #f9f5ff;
+  border-bottom: 1px solid #c5b6da;
+}
+.sample { display: flex; flex-direction: column; text-align: center; font-size: .85rem; font-weight: 740; }
+.sample::before { display: block; padding-top: 6px; }
+.sample-bar {
+  position: relative;
+  width: min(29%, 47px);
+  height: var(--height);
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(to bottom, var(--series-color), color-mix(in srgb, var(--series-color), #fff 25%));
+  color: var(--series-color);
+}
+.sample-bar::before {
+  content: attr(data-value);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 3px);
+  font: 800 .86rem/1 Consolas, monospace;
+}
+.plot-caption { margin-top: 5px; font-size: .74rem; }
+.score-caption { line-height: 1.42; font-weight: 780; }
+.score-caption span { display: block; }
+.score-caption span + span { color: var(--muted); font-size: .86rem; }
+.score-graphic > .chart-label { margin-top: 3px; }
+.score-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.score {
+  display: flex;
+  flex-direction: column;
+  padding: 9px 11px;
+  min-width: 0;
+  gap: 6px;
+  color: var(--series-color);
+  border-top: 2px solid currentColor;
+  background: #f7f0fd;
+  font-weight: 750;
+}
+.score.series-1 { background: #eef5fd; }
+.score::after {
+  content: attr(data-value);
+  font: 760 clamp(1.55rem, 3.5vw, 2.65rem)/1 system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+[data-chart="p08"] .score::after { font-size: clamp(2rem, 4.2vw, 3.6rem); }
+.score-gap { margin-top: 10px; color: #45256f; background: linear-gradient(100deg, #f2e6ff, #f5e4f7, #e6eeff); padding: 8px 11px; font-size: .85rem; border-radius: 7px; }
+.score-gap::after { content: attr(data-gap); display: inline-block; margin-inline-start: .7em; font-size: 1.16rem; font-weight: 790; }
+.keep-action { display: inline-block; }
+
+.study-scene {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: clamp(76px, 10vw, 124px);
+  border-radius: 10px;
+  background: radial-gradient(ellipse at bottom, #d8c4f5, transparent 75%), #f2e9fa;
+}
+.study-scene > span {
+  position: absolute;
+  top: 16%;
+  left: calc(50% - 29px);
+  width: 58px;
+  height: 65%;
+  border: 1px solid #a88bc8;
+  border-radius: 5px;
+  background: linear-gradient(150deg, #fff, #f1e5ff);
+  box-shadow: 3px 4px 0 #b49bce73;
+}
+.study-scene i { display: block; width: 70%; margin: 6% auto; border-bottom: 2px solid #a58ab8; }
+.study-scene i:first-child { margin-top: 28%; }
+.study-scene i:last-child { width: 49%; }
+.scene-open-book .scene-paper, .scene-reread .scene-paper { transform: translateX(-25px) skewY(8deg); }
+.scene-open-book .scene-object, .scene-reread .scene-object { transform: translateX(25px) skewY(-8deg); }
+.scene-recall .scene-paper { transform: translateX(-20px) rotate(-12deg); background: var(--chrome); }
+.scene-recall .scene-object { transform: translateX(24px) rotate(9deg); }
+.scene-recall i, .scene-flash-back .scene-object i { display: none; }
+.scene-recall b, .scene-flash-back b {
+  position: absolute;
+  left: calc(50% + 16px);
+  top: 32%;
+  color: #72559a;
+  font: 760 clamp(18px, 3vw, 30px)/1 system-ui, sans-serif;
+}
+.scene-recall b::after, .scene-flash-back b::after { content: "?"; }
+.scene-flash-front .scene-paper, .scene-flash-back .scene-paper { transform: translateX(-21px) rotate(-13deg); }
+.scene-flash-front .scene-object, .scene-flash-back .scene-object { transform: translateX(19px) rotate(9deg); }
+.scene-flash-front .scene-object { background: #fce8f8; }
+.scene-flash-front .scene-object i { border-color: #b2699d; }
+.scene-flash-back .scene-object { border-style: dashed; background: #e7effe; }
+.scene-highlight .scene-paper, .scene-summary .scene-paper { display: none; }
+.scene-highlight .scene-object i:nth-child(2) { border: 0; background: #edb8e3; height: 6px; border-radius: 2px; }
+.scene-summary .scene-object i { width: 55%; border-bottom-style: dotted; }
+.scene-summary .scene-object i:first-child { border-color: #4f719f; }
+
+.practice-head, .practice-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; text-align: center; }
+.practice-head { color: var(--muted); font-size: .76rem; font-weight: 740; }
+.practice-row { margin-top: 8px; font-size: .92rem; }
+.practice-row .phrase { margin-inline-end: .55em; }
+.practice-row + .practice-row { border-top: 1px solid #eae1f2; padding-top: 8px; }
+.practice-grid { margin-top: 6px; }
+.practice-day { display: flex; align-items: center; justify-content: center; gap: 3px; min-height: 24px; background: #f4edf9; border-radius: 5px; }
+.practice-day i { width: 10px; height: 10px; border-radius: 3px; background: #9766cd; }
+.week-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; list-style: none; padding: 0; margin: 0; }
+.week-day { padding: 8px; min-width: 0; min-height: 85px; border: 1px solid #e6def1; border-radius: 9px; background: #faf7fd; }
+.week-day .phrase, .week-day .detail { display: block; }
+.week-day .phrase { font-size: .92rem; }
+.week-day .detail { margin-top: 4px; color: #514762; font-size: .83rem; }
+.math-day { border-top: 3px solid #9871ce; background: #f2e9ff; }
+.schedule-title .detail { display: block; margin-top: 2px; font-size: .91rem; font-weight: 520; color: var(--muted); }
+.schedule-title .phrase { display: inline-block; margin-bottom: 3px; padding: 3px 9px; color: #52297f; background: #efe1fc; border-radius: 7px; }
+
+.quiz-card { max-width: 850px; margin-inline: auto; }
+.quiz-card h2 { font-size: clamp(1.11rem, 2vw, 1.42rem); line-height: 1.48; }
+.question-count { color: #674091; font-weight: 750; font-size: .84rem; margin-bottom: 8px; }
+.question-count::before { content: attr(data-label); }
+.choices { display: grid; gap: 8px; margin-top: 14px; }
+.choices button {
+  display: flex;
+  min-width: 0;
+  min-height: 48px;
+  padding: 8px 12px;
+  gap: 11px;
+  align-items: center;
+  border: 1px solid #e3d9ef;
+  border-radius: 11px;
+  color: var(--ink);
+  background: #fcf9ff;
+  text-align: left;
+  cursor: pointer;
+}
+.choices button:hover:not([aria-disabled]) { border-color: #a780d1; background: #f3e9ff; }
+.option-letter {
+  flex: 0 0 27px;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border-radius: 7px;
+  color: #623f91;
+  background: #efe3fc;
+  font: 750 .82rem/1 ui-monospace, Consolas, monospace;
+}
+.option-letter::before { content: attr(data-letter); }
+.choices button[aria-disabled] { cursor: default; }
+.choices button[data-selected] { border-color: #ae6588; background: #fdf0f6; }
+.choices button[data-correct] { border-color: #6962b0; background: #f0edff; }
+.feedback {
+  border-radius: 12px;
+  padding: 12px 15px;
+  background: #f2ecfc;
+  border-inline-start: 4px solid #8e67be;
+  margin-top: 14px;
+  scroll-margin-block-start: 88px;
+  scroll-margin-block-end: 12px;
+}
+.feedback[data-result="incorrect"] { border-color: #ae6588; background: #fdf2f8; }
+[data-result-text], [data-correct-choice] { font-weight: 780; }
+.feedback p + p { margin-top: .22em; }
+.quiz-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; column-gap: 10px; }
+.primary-action, .secondary-action, .resume-action {
+  border-radius: 11px;
+  border: 1px solid #d8c4ed;
+  padding: 7px 14px;
+  min-height: 44px;
+  font-weight: 750;
+  margin-top: 12px;
+  cursor: pointer;
+}
+.primary-action { color: #fff; background: #572e8b; border-color: transparent; }
+.secondary-action, .resume-action { color: #4f2d7b; background: #f5ebff; }
+.resume-action { margin-top: 0; white-space: nowrap; }
+
+@media (max-width: 920px) {
+  .slide { min-height: 590px; justify-content: start; padding: clamp(24px, 4.5vw, 40px); }
+  .slide-p01 { align-content: center; }
+  .body-p04, .body-p07, .body-p08 { grid-template-columns: minmax(0, 1fr); }
+  .body-p04 > .chart { grid-row: auto; }
+  .compare-p07 ul, .compare-p08 ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .topbar-inner { width: calc(100% - 24px); min-height: 62px; gap: 7px; }
+  .identity { gap: 6px; font-size: .88rem; }
+  .identity-mark { width: 17px; height: 17px; }
+  .navigation { gap: 4px; }
+  .navigation button { min-width: 44px; }
+  .page-count { min-width: 55px; }
+  .resume-action { padding: 5px 8px; font-size: .82rem; }
+  .topbar-inner:has(.resume-action:not([hidden])) .identity { font-size: 0; }
+  main { padding: 13px 10px 22px; }
+  .slide { min-height: 0; border-radius: 20px; padding: 20px 14px; gap: 17px; }
+  .slide::before { left: 20px; right: 20px; }
+  .slide-heading h1, .slide-heading h2 { letter-spacing: -.035em; font-size: 1.95rem; }
+  .slide-p01 { grid-template: auto auto auto / minmax(0, 1fr); }
+  .slide-p01 h1 { font-size: clamp(2.1rem, 9.8vw, 3rem); }
+  .slide-p11 .slide-heading h2 { text-wrap: initial; }
+  .quiz-heading-prefix { display: block; margin-bottom: .22em; font-size: .76em; color: var(--purple); }
+  .quiz-heading-divider { display: none; }
+  .body-p01 { grid-row: 3; }
+  .cover-art { grid-area: 2 / 1; max-width: 250px; }
+  .lesson-body { gap: 10px; }
+  .panel { padding: 12px; border-radius: 13px; }
+  .body-p03, .body-p05 { grid-template-columns: minmax(0, 1fr); }
+  .tiles ul, .protocol ol { gap: 8px; }
+  .tiles li, .protocol li { padding: 10px; gap: 7px; }
+  .compare-p05 ul, .takeaways ul { grid-template-columns: minmax(0, 1fr); }
+  .compare-p05 li, .takeaways li { flex-direction: row; gap: 10px; align-items: center; }
+  .compare-p07 li, .compare-p08 li { flex-direction: column; align-items: flex-start; }
+  .protocol ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .slide-p08 .slide-heading h2 { font-size: 1.75rem; text-wrap: initial; }
+  .week-calendar { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .week-day { padding: 6px; min-height: 68px; }
+  .compare-p05 .study-scene { flex: 0 0 84px; }
+  .compare-p05 .study-scene > span { width: 39px; left: calc(50% - 19px); }
+  .compare-p05 .scene-reread .scene-paper { transform: translateX(-15px) skewY(8deg); }
+  .compare-p05 .scene-reread .scene-object { transform: translateX(15px) skewY(-8deg); }
+  .feedback { scroll-margin-block-start: 76px; }
+}
+</style></head>
+<body data-theme="y2k-purple-pink-blue">
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="identity"><span class="identity-mark" aria-hidden="true"></span>學習與記憶心理學</div>
+    <button type="button" class="resume-action" data-resume-quiz hidden>回到測驗</button>
+    <nav class="navigation" aria-label="簡報換頁">
+      <button type="button" data-prev aria-label="上一頁" disabled><span aria-hidden="true">←</span></button>
+      <span class="page-count" data-counter aria-live="polite"></span>
+      <button type="button" data-next aria-label="下一頁"><span aria-hidden="true">→</span></button>
+    </nav>
+  </div>
+  <div class="progress" data-progress aria-hidden="true"></div>
+</header>
+<main><section data-page="p01"><div class="slide slide-p01"><div class="slide-heading"><h1 id="title-p01" tabindex="-1">為什麼讀過的<span class="keep-together">東西</span><br>總是記不住？</h1></div><div class="lesson-body body-p01"><div class="panel case"><p>想像明天有小考。你重看講義時覺得這段都懂。闔上講義後，同學問你「這段在說什麼？」你會怎麼用一句話回答？ <span hidden data-source-anchor="S06:wiki/topics/03-common-study-methods.md:91 S03:wiki/topics/02-causes-of-forgetting.md:63">[S03；S06]</span></p></div><div class="panel text"><p>如果一時卡住，翻回去找一個剛才沒說出的重點。這就是你下次複習可以先練的地方。接下來看看怎麼練到隔幾天還能自己說出來。 <span hidden data-source-anchor="S06:wiki/topics/03-common-study-methods.md:91">[S06]</span></p></div></div>
+        <div class="cover-art" aria-hidden="true">
+          <span class="orbit orbit-outer"></span><span class="orbit orbit-inner"></span>
+          <span class="art-star star-top"></span><span class="art-star star-bottom"></span>
+          <span class="paper paper-back"></span>
+          <span class="art-book"><i></i><i></i></span>
+          <span class="paper paper-front"><i></i><i></i><i></i></span>
+        </div>
+        <footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S03"><a class="work-title" lang="en" href="../wiki/sources/S03-bjork-dunlosky-kornell-2013.html">Self-Regulated Learning: Beliefs, Techniques, and Illusions</a><p class="work-author" lang="en">Bjork, Dunlosky, &amp; Kornell (2013)</p><ul><li class="source-location"><span>案例或示例</span> <a href="../wiki/topics/02-causes-of-forgetting.html#L63" data-wiki-ref="S03:wiki/topics/02-causes-of-forgetting.md:63">遺忘原因第 63 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>案例或示例</span> <a href="../wiki/topics/03-common-study-methods.html#L91" data-wiki-ref="S06:wiki/topics/03-common-study-methods.md:91">常見讀書方法第 91 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/03-common-study-methods.html#L91" data-wiki-ref="S06:wiki/topics/03-common-study-methods.md:91">常見讀書方法第 91 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p02" hidden><div class="slide slide-p02"><div class="slide-heading"><h2 id="title-p02" tabindex="-1">眼熟，真的記得嗎？</h2></div><div class="lesson-body body-p02"><figure class="panel tiles compare-p02"><ul><li><span class="study-scene scene-open-book" aria-hidden="true"><span class="scene-paper"><i></i><i></i><i></i></span><span class="scene-object"><i></i><i></i><i></i></span><b></b></span><span><span class="phrase">攤開講義</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">看著原本的句子，你可能覺得每句都熟。</span></span></li><li><span class="study-scene scene-recall" aria-hidden="true"><span class="scene-paper"><i></i><i></i><i></i></span><span class="scene-object"><i></i><i></i><i></i></span><b></b></span><span><span class="phrase">闔上講義</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">用一張白紙，想想你能自己寫出哪些重點。</span></span></li></ul><span hidden data-source-anchor="S03:wiki/topics/02-causes-of-forgetting.md:63 S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:16">[S03；S06]</span></figure><div class="panel text"><p>原句在眼前，讀起來可能很順。把這種順手的感覺當成以後一定能自己說出來，心理學叫流暢度錯覺（Fluency Illusions）。 <span hidden data-source-anchor="S03:wiki/sources/S03-bjork-dunlosky-kornell-2013.md:43 S03:wiki/topics/02-causes-of-forgetting.md:63">[S03]</span></p></div><div class="panel steps"><span class="mini check-mark" aria-hidden="true"><i></i><i></i><i></i></span><p><span class="phrase">試一次</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">讀完一段就闔上講義，用自己的話寫出大意。再翻回去，看你是忘了整個重點，還是漏了其中的理由。</span> <span hidden data-source-anchor="S06:wiki/topics/03-common-study-methods.md:91">[S06]</span></p></div></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S03"><a class="work-title" lang="en" href="../wiki/sources/S03-bjork-dunlosky-kornell-2013.html">Self-Regulated Learning: Beliefs, Techniques, and Illusions</a><p class="work-author" lang="en">Bjork, Dunlosky, &amp; Kornell (2013)</p><ul><li class="source-location"><span>觀念圖解</span> <a href="../wiki/topics/02-causes-of-forgetting.html#L63" data-wiki-ref="S03:wiki/topics/02-causes-of-forgetting.md:63">遺忘原因第 63 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/sources/S03-bjork-dunlosky-kornell-2013.html#L43" data-wiki-ref="S03:wiki/sources/S03-bjork-dunlosky-kornell-2013.md:43">文獻筆記第 43 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/02-causes-of-forgetting.html#L63" data-wiki-ref="S03:wiki/topics/02-causes-of-forgetting.md:63">遺忘原因第 63 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>觀念圖解</span> <a href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html#L16" data-wiki-ref="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:16">文獻筆記第 16 行</a></li><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/03-common-study-methods.html#L91" data-wiki-ref="S06:wiki/topics/03-common-study-methods.md:91">常見讀書方法第 91 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p03" hidden><div class="slide slide-p03"><div class="slide-heading"><h2 id="title-p03" tabindex="-1">為什麼隔幾天就想不起來？</h2></div><div class="lesson-body body-p03"><figure class="panel tiles compare-p03"><ul><li><span class="study-scene scene-flash-front" aria-hidden="true"><span class="scene-paper"><i></i><i></i><i></i></span><span class="scene-object"><i></i><i></i><i></i></span><b></b></span><span><span class="phrase">有提示</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">想像有人提醒你中文意思的第一個字，你就想起整個意思。</span></span></li><li><span class="study-scene scene-flash-back" aria-hidden="true"><span class="scene-paper"><i></i><i></i><i></i></span><span class="scene-object"><i></i><i></i><i></i></span><b></b></span><span><span class="phrase">只看題面</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">同一個外語單字，只有題面可看時，你可能要想更久。</span></span></li></ul><span hidden data-source-anchor="S03:wiki/topics/02-causes-of-forgetting.md:63 S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:16">[S03；S06]</span></figure><div class="panel text"><p>同一個字，只多給一點提示，就可能變得比較好想。心理學把「此刻有多容易想起」叫提取強度（Retrieval Strength）。 <span hidden data-source-anchor="S03:wiki/topics/02-causes-of-forgetting.md:36 S06:wiki/topics/02-causes-of-forgetting.md:74">[S03；S06]</span></p></div><div class="panel text"><p>再想像兩張卡今天都答對，幾天後卻只想得起其中一張。「學得有多牢」是模型中儲存強度（Storage Strength）要描述的事。今天都答對，只告訴你今天想得起來。 <span hidden data-source-anchor="S06:wiki/topics/02-causes-of-forgetting.md:74 S06:wiki/topics/05-practical-applications.md:107 S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:23">[S06]</span></p></div><div class="panel steps"><span class="mini check-mark" aria-hidden="true"><i></i><i></i><i></i></span><p><span class="phrase">用單字卡自測</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">今天先看題面作答，再翻面核對。過幾天用同一張卡再試，看看那時還想得起哪些字。</span> <span hidden data-source-anchor="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:16 S06:wiki/topics/05-practical-applications.md:100 S06:wiki/topics/05-practical-applications.md:107">[S06]</span></p></div></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S03"><a class="work-title" lang="en" href="../wiki/sources/S03-bjork-dunlosky-kornell-2013.html">Self-Regulated Learning: Beliefs, Techniques, and Illusions</a><p class="work-author" lang="en">Bjork, Dunlosky, &amp; Kornell (2013)</p><ul><li class="source-location"><span>案例或示例</span> <a href="../wiki/topics/02-causes-of-forgetting.html#L63" data-wiki-ref="S03:wiki/topics/02-causes-of-forgetting.md:63">遺忘原因第 63 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/02-causes-of-forgetting.html#L36" data-wiki-ref="S03:wiki/topics/02-causes-of-forgetting.md:36">遺忘原因第 36 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>案例或示例</span> <a href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html#L16" data-wiki-ref="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:16">文獻筆記第 16 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/02-causes-of-forgetting.html#L74" data-wiki-ref="S06:wiki/topics/02-causes-of-forgetting.md:74">遺忘原因第 74 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/05-practical-applications.html#L107" data-wiki-ref="S06:wiki/topics/05-practical-applications.md:107">實際應用第 107 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html#L23" data-wiki-ref="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:23">文獻筆記第 23 行</a></li><li class="source-location"><span>練習做法</span> <a href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html#L16" data-wiki-ref="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:16">文獻筆記第 16 行</a></li><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L100" data-wiki-ref="S06:wiki/topics/05-practical-applications.md:100 S06:wiki/topics/05-practical-applications.md:107">實際應用第 100、107 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p04" hidden><div class="slide slide-p04"><div class="slide-heading"><h2 id="title-p04" tabindex="-1">讀兩次，還是讀一次再回想？</h2></div><div class="lesson-body body-p04"><div class="panel text"><p>大學生讀完科學短文後，研究比較兩種做法。一種是再讀一次，另一種是闔上文章寫出記得的內容。測驗看的是學生能靠自己寫出多少重點。圖上列出兩種做法的平均比例。 <span hidden data-source-anchor="S01:wiki/sources/S01-roediger-karpicke-2006.md:27 S01:wiki/sources/S01-roediger-karpicke-2006.md:28 S01:wiki/sources/S01-roediger-karpicke-2006.md:30 S01:wiki/sources/S01-roediger-karpicke-2006.md:50">[S01]</span></p></div><figure class="panel chart" data-chart="p04"><div class="study-plot" aria-hidden="true"><div class="chart-label" data-label="能回憶出的文章重點比例"></div><div class="plot-legend"><span class="series-0" data-label="讀兩次"></span><span class="series-1" data-label="讀一次＋回想一次"></span></div><div class="sample-field"><div class="sample-scale"><span class="plot-tick" data-label="100%" style="--y:0%"></span><span class="plot-tick" data-label="50%" style="--y:50%"></span><span class="plot-tick" data-label="0%" style="--y:100%"></span></div><div class="sample" data-label="5 分鐘後"><div class="sample-pair"><span class="sample-bar series-0" data-value="81%" style="--height:81%"></span><span class="sample-bar series-1" data-value="75%" style="--height:75%"></span></div></div><div class="sample" data-label="一週後"><div class="sample-pair"><span class="sample-bar series-0" data-value="42%" style="--height:42%"></span><span class="sample-bar series-1" data-value="56%" style="--height:56%"></span></div></div></div><div class="plot-caption" data-label="圖中選出兩個實測時間"></div></div><table class="screen-reader" aria-label="能回憶出的文章重點比例，0% 至 100%"><thead><tr><th scope="col">測驗時間<span class="punctuation" aria-hidden="true">｜</span></th><th scope="col">讀兩次<span class="punctuation" aria-hidden="true">｜</span></th><th scope="col">讀一次＋回想一次</th></tr></thead><tbody><tr><th scope="row">5 分鐘後<span class="punctuation" aria-hidden="true">｜</span></th><td>81%<span class="punctuation" aria-hidden="true">｜</span></td><td>75%</td></tr><tr><th scope="row">一週後<span class="punctuation" aria-hidden="true">｜</span></th><td>42%<span class="punctuation" aria-hidden="true">｜</span></td><td>56%</td></tr></tbody></table><span hidden data-source-anchor="S01:wiki/sources/S01-roediger-karpicke-2006.md:50 S01:wiki/sources/S01-roediger-karpicke-2006.md:51 S01:wiki/sources/S01-roediger-karpicke-2006.md:52 S01:wiki/sources/S01-roediger-karpicke-2006.md:53 S01:wiki/sources/S01-roediger-karpicke-2006.md:59 S01:wiki/sources/S01-roediger-karpicke-2006.md:61 S01:wiki/sources/S01-roediger-karpicke-2006.md:60">[S01]</span></figure><div class="panel text"><p>這兩次的結果怎麼看？5 分鐘後，重讀組寫出的重點較多。一週後，讀一次再回想的那組寫出的重點較多。判斷能記多久，要看讀完後隔了多久再測。 <span hidden data-source-anchor="S01:wiki/sources/S01-roediger-karpicke-2006.md:54 S01:wiki/sources/S01-roediger-karpicke-2006.md:62">[S01]</span></p></div><div class="panel steps"><span class="mini check-mark" aria-hidden="true"><i></i><i></i><i></i></span><p>讀完先闔書，用自己的話回答一道關於文章重點的問題。隔幾天再答一次，翻回原文看看哪部分還需要練。 <span hidden data-source-anchor="S06:wiki/topics/05-practical-applications.md:100 S06:wiki/topics/05-practical-applications.md:107">[S06]</span></p></div></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S01"><a class="work-title" lang="en" href="../wiki/sources/S01-roediger-karpicke-2006.html">Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention</a><p class="work-author" lang="en">Roediger &amp; Karpicke (2006)</p><ul><li class="source-location"><span>內文說明</span> <a href="../wiki/sources/S01-roediger-karpicke-2006.html#L27" data-wiki-ref="S01:wiki/sources/S01-roediger-karpicke-2006.md:27 S01:wiki/sources/S01-roediger-karpicke-2006.md:28 S01:wiki/sources/S01-roediger-karpicke-2006.md:30 S01:wiki/sources/S01-roediger-karpicke-2006.md:50 S01:wiki/sources/S01-roediger-karpicke-2006.md:54 S01:wiki/sources/S01-roediger-karpicke-2006.md:62">文獻筆記第 27–28、30、50、54、62 行</a></li><li class="source-location"><span>圖表數據</span> <a href="../wiki/sources/S01-roediger-karpicke-2006.html#L50" data-wiki-ref="S01:wiki/sources/S01-roediger-karpicke-2006.md:50 S01:wiki/sources/S01-roediger-karpicke-2006.md:51 S01:wiki/sources/S01-roediger-karpicke-2006.md:52 S01:wiki/sources/S01-roediger-karpicke-2006.md:53 S01:wiki/sources/S01-roediger-karpicke-2006.md:59 S01:wiki/sources/S01-roediger-karpicke-2006.md:60 S01:wiki/sources/S01-roediger-karpicke-2006.md:61">文獻筆記第 50–53、59–61 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L100" data-wiki-ref="S06:wiki/topics/05-practical-applications.md:100 S06:wiki/topics/05-practical-applications.md:107">實際應用第 100、107 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p05" hidden><div class="slide slide-p05"><div class="slide-heading"><h2 id="title-p05" tabindex="-1">重讀、劃線、做摘要，哪裡容易卡住？</h2></div><div class="lesson-body body-p05"><figure class="panel tiles compare-p05"><ul><li><span class="study-scene scene-reread" aria-hidden="true"><span class="scene-paper"><i></i><i></i><i></i></span><span class="scene-object"><i></i><i></i><i></i></span><b></b></span><span><span class="phrase">重讀（Rereading）</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">再看一遍原文。句子看起來熟，容易以為自己已經記住了。</span></span></li><li><span class="study-scene scene-highlight" aria-hidden="true"><span class="scene-paper"><i></i><i></i><i></i></span><span class="scene-object"><i></i><i></i><i></i></span><b></b></span><span><span class="phrase">劃線（Highlighting and Underlining）</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">留下記號，翻回來時比較好找重點。單靠劃線的學習效果有限。</span></span></li><li><span class="study-scene scene-summary" aria-hidden="true"><span class="scene-paper"><i></i><i></i><i></i></span><span class="scene-object"><i></i><i></i><i></i></span><b></b></span><span><span class="phrase">摘要（Summarization）</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">用自己的話把重點重組成一段。摘要就算很短，漏掉關鍵意思也會影響它的幫助。</span></span></li></ul><span hidden data-source-anchor="S03:wiki/sources/S03-bjork-dunlosky-kornell-2013.md:43 S04:wiki/sources/S04-dunlosky-et-al-2013.md:81 S04:wiki/topics/03-common-study-methods.md:35 S04:wiki/topics/03-common-study-methods.md:51">[S03；S04]</span></figure><div class="panel text"><p>劃線方便找重點。要弄懂段落之間的關係，還得自己把內容連起來。一項研究讓大學生讀歷史教材，比較三種做法。有人劃線後複習劃線版，有人劃線後複習沒劃線的版本，也有人全程不劃線。三組回答文章明寫的事實時，表現差不多。遇到要連起不同段落才能作答的題目，劃線後又複習劃線版的那組答得較差。這個結果還需要其他研究確認。 <span hidden data-source-anchor="S04:wiki/topics/03-common-study-methods.md:42 S04:wiki/topics/03-common-study-methods.md:43">[S04]</span></p></div><div class="panel steps"><span class="mini check-mark" aria-hidden="true"><i></i><i></i><i></i></span><p>下次劃線後，闔上講義試著回答「這兩段合起來在說什麼？」再翻開原文核對。 <span hidden data-source-anchor="S06:wiki/topics/03-common-study-methods.md:91">[S06]</span></p></div></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S03"><a class="work-title" lang="en" href="../wiki/sources/S03-bjork-dunlosky-kornell-2013.html">Self-Regulated Learning: Beliefs, Techniques, and Illusions</a><p class="work-author" lang="en">Bjork, Dunlosky, &amp; Kornell (2013)</p><ul><li class="source-location"><span>觀念圖解</span> <a href="../wiki/sources/S03-bjork-dunlosky-kornell-2013.html#L43" data-wiki-ref="S03:wiki/sources/S03-bjork-dunlosky-kornell-2013.md:43">文獻筆記第 43 行</a></li></ul></li><li class="source-work" data-work-id="S04"><a class="work-title" lang="en" href="../wiki/sources/S04-dunlosky-et-al-2013.html">Improving Students’ Learning With Effective Learning Techniques: Promising Directions From Cognitive and Educational Psychology</a><p class="work-author" lang="en">Dunlosky, Rawson, Marsh, Nathan, &amp; Willingham (2013)</p><ul><li class="source-location"><span>觀念圖解</span> <a href="../wiki/sources/S04-dunlosky-et-al-2013.html#L81" data-wiki-ref="S04:wiki/sources/S04-dunlosky-et-al-2013.md:81">文獻筆記第 81 行</a></li><li class="source-location"><span>觀念圖解</span> <a href="../wiki/topics/03-common-study-methods.html#L35" data-wiki-ref="S04:wiki/topics/03-common-study-methods.md:35 S04:wiki/topics/03-common-study-methods.md:51">常見讀書方法第 35、51 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/03-common-study-methods.html#L42" data-wiki-ref="S04:wiki/topics/03-common-study-methods.md:42 S04:wiki/topics/03-common-study-methods.md:43">常見讀書方法第 42–43 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/03-common-study-methods.html#L91" data-wiki-ref="S06:wiki/topics/03-common-study-methods.md:91">常見讀書方法第 91 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p06" hidden><div class="slide slide-p06"><div class="slide-heading"><h2 id="title-p06" tabindex="-1">做法一｜闔書回想，再打開核對</h2></div><div class="lesson-body body-p06"><div class="panel text"><p>先把書放到一旁，用自己的話說出剛才那段在解釋什麼。這是一種提取練習（Retrieval Practice），也就是練習把學過的內容從記憶裡找回來。 <span hidden data-source-anchor="S04:wiki/topics/04-effective-learning-strategies.md:14">[S04]</span></p></div><figure class="panel protocol"><div class="protocol-title"><span class="phrase">白紙自由回憶法</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">自修示範</span></div><ol><li><span class="mini open-book" aria-hidden="true"><i></i><i></i><i></i></span><span>① 讀一小段。先弄懂它在說什麼。</span></li><li><span class="mini closed-book" aria-hidden="true"><i></i><i></i><i></i></span><span>② 合上書。把原文移出視線。</span></li><li><span class="mini notes" aria-hidden="true"><i></i><i></i><i></i></span><span>③ 寫下來。像在向同學解釋，憑記憶把重點寫下來。</span></li><li><span class="mini check-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>④ 翻開核對。找出寫錯或漏掉的內容，再訂正。</span></li></ol><span hidden data-source-anchor="S01:wiki/topics/05-practical-applications.md:13 S01:wiki/topics/05-practical-applications.md:21 S01:wiki/topics/05-practical-applications.md:24">[S01]</span></figure><div class="panel text"><p>短文實驗裡，學生闔上文章寫出記得的內容，研究人員沒有提供正解。自己練習時，可以加上第四步，翻回原文找出漏掉或寫錯的地方。 <span hidden data-source-anchor="S01:wiki/topics/05-practical-applications.md:12 S01:wiki/topics/05-practical-applications.md:13 S01:wiki/sources/S01-roediger-karpicke-2006.md:30 S06:wiki/topics/05-practical-applications.md:100">[S01；S06]</span></p></div></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S01"><a class="work-title" lang="en" href="../wiki/sources/S01-roediger-karpicke-2006.html">Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention</a><p class="work-author" lang="en">Roediger &amp; Karpicke (2006)</p><ul><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L13" data-wiki-ref="S01:wiki/topics/05-practical-applications.md:13 S01:wiki/topics/05-practical-applications.md:21 S01:wiki/topics/05-practical-applications.md:24">實際應用第 13、21、24 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/05-practical-applications.html#L12" data-wiki-ref="S01:wiki/topics/05-practical-applications.md:12 S01:wiki/topics/05-practical-applications.md:13">實際應用第 12–13 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/sources/S01-roediger-karpicke-2006.html#L30" data-wiki-ref="S01:wiki/sources/S01-roediger-karpicke-2006.md:30">文獻筆記第 30 行</a></li></ul></li><li class="source-work" data-work-id="S04"><a class="work-title" lang="en" href="../wiki/sources/S04-dunlosky-et-al-2013.html">Improving Students’ Learning With Effective Learning Techniques: Promising Directions From Cognitive and Educational Psychology</a><p class="work-author" lang="en">Dunlosky, Rawson, Marsh, Nathan, &amp; Willingham (2013)</p><ul><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/04-effective-learning-strategies.html#L14" data-wiki-ref="S04:wiki/topics/04-effective-learning-strategies.md:14">有效學習策略第 14 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/05-practical-applications.html#L100" data-wiki-ref="S06:wiki/topics/05-practical-applications.md:100">實際應用第 100 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p07" hidden><div class="slide slide-p07"><div class="slide-heading"><h2 id="title-p07" tabindex="-1">做法二｜把同一內容分到不同天練</h2></div><div class="lesson-body body-p07"><figure class="panel practice-timeline"><div class="practice-head" aria-hidden="true"><span data-label="當天"></span><span data-label="另一日"></span><span data-label="再另一日"></span></div><div class="practice-row"><div><span class="phrase">集中練</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">同一份內容的幾次練習全排在同一天。</span></div><div class="practice-grid" aria-hidden="true"><span class="practice-day" data-sessions="3"><i></i><i></i><i></i></span><span class="practice-day" data-sessions="0"></span><span class="practice-day" data-sessions="0"></span></div></div><div class="practice-row"><div><span class="phrase">分散練</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">把同一份內容拿到不同天再練。這叫分散練習（Distributed Practice）。</span></div><div class="practice-grid" aria-hidden="true"><span class="practice-day" data-sessions="1"><i></i></span><span class="practice-day" data-sessions="1"><i></i></span><span class="practice-day" data-sessions="1"><i></i></span></div></div><span hidden data-source-anchor="S02:wiki/topics/04-effective-learning-strategies.md:42 S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:14">[S02；S06]</span></figure><figure class="panel chart" data-chart="p07"><div class="score-graphic" aria-hidden="true"><div class="score-caption"><span data-label="口語回憶研究彙整"></span></div><div class="chart-label" data-label="平均正確率"></div><div class="score-pair"><div class="score series-0" data-label="集中" data-value="36.7%"></div><div class="score series-1" data-label="分散" data-value="47.3%"></div></div></div><table class="screen-reader" aria-label="口語回憶研究彙整，平均正確率"><thead><tr><th scope="col">口語回憶研究彙整<span class="punctuation" aria-hidden="true">｜</span></th><th scope="col">平均正確率</th></tr></thead><tbody><tr><th scope="row">集中<span class="punctuation" aria-hidden="true">｜</span></th><td>36.7%</td></tr><tr><th scope="row">分散<span class="punctuation" aria-hidden="true">｜</span></th><td>47.3%</td></tr></tbody></table><span hidden data-source-anchor="S02:wiki/topics/04-effective-learning-strategies.md:42">[S02]</span></figure><div class="panel text"><p>大學理工科的研究用小考比較兩種做法。同一個重點的幾道題，可以在同一次小考練完，也可以分到幾次小考。兩組都要自己想答案。分開練能多帶來多少幫助，會因課程而異。 <span hidden data-source-anchor="S05:wiki/topics/04-effective-learning-strategies.md:99 S05:wiki/topics/04-effective-learning-strategies.md:101">[S05]</span></p></div><div class="panel steps"><span class="mini check-mark" aria-hidden="true"><i></i><i></i><i></i></span><p>例如把同一疊單字卡留到不同天再答，一輪答完後，找出還想不起的字。下一次安排在哪天，可以依你想記多久和自測結果調整。 <span hidden data-source-anchor="S02:wiki/topics/04-effective-learning-strategies.md:47 S06:wiki/topics/05-practical-applications.md:107 S06:wiki/topics/05-practical-applications.md:100">[S02；S06]</span></p></div></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S02"><a class="work-title" lang="en" href="../wiki/sources/S02-cepeda-et-al-2006.html">Distributed Practice in Verbal Recall Tasks: A Review and Quantitative Synthesis</a><p class="work-author" lang="en">Cepeda, Pashler, Vul, Wixted, &amp; Rohrer (2006)</p><ul><li class="source-location"><span>觀念圖解</span> <a href="../wiki/topics/04-effective-learning-strategies.html#L42" data-wiki-ref="S02:wiki/topics/04-effective-learning-strategies.md:42">有效學習策略第 42 行</a></li><li class="source-location"><span>圖表數據</span> <a href="../wiki/topics/04-effective-learning-strategies.html#L42" data-wiki-ref="S02:wiki/topics/04-effective-learning-strategies.md:42">有效學習策略第 42 行</a></li><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/04-effective-learning-strategies.html#L47" data-wiki-ref="S02:wiki/topics/04-effective-learning-strategies.md:47">有效學習策略第 47 行</a></li></ul></li><li class="source-work" data-work-id="S05"><a class="work-title" lang="en" href="../wiki/sources/S05-bego-et-al-2024.html">Single-paper meta-analyses of the effects of spaced retrieval practice in nine introductory STEM courses: is the glass half full or half empty?</a><p class="work-author" lang="en">Bego et al. (2024)</p><ul><li class="source-location"><span>內文說明</span> <a href="../wiki/topics/04-effective-learning-strategies.html#L99" data-wiki-ref="S05:wiki/topics/04-effective-learning-strategies.md:99 S05:wiki/topics/04-effective-learning-strategies.md:101">有效學習策略第 99、101 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>觀念圖解</span> <a href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html#L14" data-wiki-ref="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:14">文獻筆記第 14 行</a></li><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L100" data-wiki-ref="S06:wiki/topics/05-practical-applications.md:100 S06:wiki/topics/05-practical-applications.md:107">實際應用第 100、107 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p08" hidden><div class="slide slide-p08"><div class="slide-heading"><h2 id="title-p08" tabindex="-1">做法三｜交錯練題，<wbr><span class="keep-action">先判斷該用哪個公式</span></h2></div><div class="lesson-body body-p08"><figure class="panel tiles compare-p08"><ul><li><span class="mini blocked" aria-hidden="true"><i></i><i></i><i></i></span><span><span class="phrase">同型題連做</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">同一類題目排在一起。知道是哪一類後，可以接著用同類方法。</span></span></li><li><span class="mini mixed" aria-hidden="true"><i></i><i></i><i></i></span><span><span class="phrase">交錯練習（Interleaving）</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">把已學過的不同題型混在一起。每做一題，先看題目的特徵再選方法。</span></span></li></ul><span hidden data-source-anchor="S04:wiki/topics/04-effective-learning-strategies.md:55">[S04]</span></figure><figure class="panel chart" data-chart="p08"><div class="score-graphic" aria-hidden="true"><div class="score-caption"><span data-label="大學生幾何體積任務"></span><span data-label="第二次練習一週後"></span></div><div class="chart-label" data-label="答對比例"></div><div class="score-pair"><div class="score series-0" data-label="同型題連做" data-value="20%"></div><div class="score series-1" data-label="交錯練習" data-value="63%"></div></div><div class="score-gap" data-label="該任務的組間差" data-gap="43 個百分點"></div></div><table class="screen-reader" aria-label="大學生幾何體積任務，第二次練習一週後，答對比例"><thead><tr><th scope="col">大學生幾何體積任務，第二次練習一週後<span class="punctuation" aria-hidden="true">｜</span></th><th scope="col">答對比例</th></tr></thead><tbody><tr><th scope="row">同型題連做<span class="punctuation" aria-hidden="true">｜</span></th><td>20%</td></tr><tr><th scope="row">交錯練習<span class="punctuation" aria-hidden="true">｜</span></th><td>63%</td></tr><tr><th scope="row">該任務的組間差<span class="punctuation" aria-hidden="true">｜</span></th><td>43 個百分點</td></tr></tbody></table><span hidden data-source-anchor="S04:wiki/topics/04-effective-learning-strategies.md:59 S04:wiki/topics/04-effective-learning-strategies.md:60">[S04]</span></figure><div class="panel text"><p>圖上的「43 個百分點」是把兩組的答對率直接相減。平常遇到混在一起的體積題，就先認出圖形，再決定用哪個公式。 <span hidden data-source-anchor="S04:wiki/sources/S04-dunlosky-et-al-2013.md:71 S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:15">[S04；S06]</span></p></div><div class="panel steps"><span class="mini check-mark" aria-hidden="true"><i></i><i></i><i></i></span><p>練習時，把容易混淆的題型排在一起。先對自己說「我從題目的哪個特徵看出要用這個公式？」再動筆計算。 <span hidden data-source-anchor="S04:wiki/topics/05-practical-applications.md:109">[S04]</span></p></div></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S04"><a class="work-title" lang="en" href="../wiki/sources/S04-dunlosky-et-al-2013.html">Improving Students’ Learning With Effective Learning Techniques: Promising Directions From Cognitive and Educational Psychology</a><p class="work-author" lang="en">Dunlosky, Rawson, Marsh, Nathan, &amp; Willingham (2013)</p><ul><li class="source-location"><span>觀念圖解</span> <a href="../wiki/topics/04-effective-learning-strategies.html#L55" data-wiki-ref="S04:wiki/topics/04-effective-learning-strategies.md:55">有效學習策略第 55 行</a></li><li class="source-location"><span>圖表數據</span> <a href="../wiki/topics/04-effective-learning-strategies.html#L59" data-wiki-ref="S04:wiki/topics/04-effective-learning-strategies.md:59 S04:wiki/topics/04-effective-learning-strategies.md:60">有效學習策略第 59–60 行</a></li><li class="source-location"><span>內文說明</span> <a href="../wiki/sources/S04-dunlosky-et-al-2013.html#L71" data-wiki-ref="S04:wiki/sources/S04-dunlosky-et-al-2013.md:71">文獻筆記第 71 行</a></li><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L109" data-wiki-ref="S04:wiki/topics/05-practical-applications.md:109">實際應用第 109 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>內文說明</span> <a href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html#L15" data-wiki-ref="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:15">文獻筆記第 15 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p09" hidden><div class="slide slide-p09"><div class="slide-heading"><h2 id="title-p09" tabindex="-1">把這些方法排進一週</h2></div><div class="lesson-body body-p09"><figure class="panel schedule"><div class="schedule-title"><span class="phrase">複習排程的教學示例</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">這份高中課表用來示範一種排法。跟著紫色標記，看看週一的數學如何在週二、週日再出現。</span></div><ol class="week-calendar"><li class="week-day math-day"><span class="phrase">週一</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">上數學</span></li><li class="week-day math-day"><span class="phrase">週二</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">複習週一數學</span></li><li class="week-day"><span class="phrase">週三</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">複習自然</span></li><li class="week-day"><span class="phrase">週四</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">複習法文</span></li><li class="week-day"><span class="phrase">週五</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">複習歷史</span></li><li class="week-day"><span class="phrase">週六</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">休息</span></li><li class="week-day math-day"><span class="phrase">週日</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">再練數學</span></li></ol><span hidden data-source-anchor="S06:wiki/topics/05-practical-applications.md:96 S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:25">[S06]</span></figure><div class="panel steps"><span class="mini check-mark" aria-hidden="true"><i></i><i></i><i></i></span><p>假如週二有題目想不出來，先用教材核對，記下那題，週日再試一次。你自己的複習日期可以重排，適合的間隔會隨你想記多久和自測結果而變。 <span hidden data-source-anchor="S06:wiki/topics/05-practical-applications.md:98 S06:wiki/topics/05-practical-applications.md:100 S02:wiki/topics/05-practical-applications.md:107">[S02；S06]</span></p></div></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S02"><a class="work-title" lang="en" href="../wiki/sources/S02-cepeda-et-al-2006.html">Distributed Practice in Verbal Recall Tasks: A Review and Quantitative Synthesis</a><p class="work-author" lang="en">Cepeda, Pashler, Vul, Wixted, &amp; Rohrer (2006)</p><ul><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L107" data-wiki-ref="S02:wiki/topics/05-practical-applications.md:107">實際應用第 107 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>案例或示例</span> <a href="../wiki/topics/05-practical-applications.html#L96" data-wiki-ref="S06:wiki/topics/05-practical-applications.md:96">實際應用第 96 行</a></li><li class="source-location"><span>案例或示例</span> <a href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html#L25" data-wiki-ref="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:25">文獻筆記第 25 行</a></li><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L98" data-wiki-ref="S06:wiki/topics/05-practical-applications.md:98 S06:wiki/topics/05-practical-applications.md:100">實際應用第 98、100 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p10" hidden><div class="slide slide-p10"><div class="slide-heading"><h2 id="title-p10" tabindex="-1">自我測驗｜眼熟和記得有什麼差別？</h2></div><div class="quiz-body"><article class="quiz-card panel" data-question="q1" data-answer="1" aria-labelledby="q1-prompt"><div class="question-count" data-label="第 1 題，共 5 題" role="img" aria-label="第 1 題，共 5 題"></div><h2 id="q1-prompt" tabindex="-1">講義看起來很眼熟。哪個做法最能檢查你闔上講義後能否想起重點？</h2><div class="choices"><button type="button" data-option="0"><span class="option-letter" aria-hidden="true" data-letter="A"></span><span data-option-text>重看劃過的幾句</span></button><button type="button" data-option="1"><span class="option-letter" aria-hidden="true" data-letter="B"></span><span data-option-text>闔上講義寫出記得的內容，再打開核對</span></button><button type="button" data-option="2"><span class="option-letter" aria-hidden="true" data-letter="C"></span><span data-option-text>照著講義抄寫重點</span></button></div><div class="feedback" data-feedback hidden tabindex="-1"><div data-result-text></div><p data-correct-choice></p><p>寫在白紙上的內容，就是你當下能自己回想的部分。重看或照抄時，講義上的字也在提示你。翻回去核對，可以找出剛才少寫或記錯了什麼。 <span hidden data-source-anchor="S06:wiki/topics/03-common-study-methods.md:91">[S06]</span></p></div><div class="quiz-actions"><button type="button" class="primary-action" data-quiz-next hidden></button></div></article><article class="quiz-card panel" data-question="q2" data-answer="2" aria-labelledby="q2-prompt" hidden><div class="question-count" data-label="第 2 題，共 5 題" role="img" aria-label="第 2 題，共 5 題"></div><h2 id="q2-prompt" tabindex="-1">在這個科學短文實驗中，哪一項符合結果？</h2><div class="choices"><button type="button" data-option="0"><span class="option-letter" aria-hidden="true" data-letter="A"></span><span data-option-text>重讀組在 5 分鐘後和一週後都領先</span></button><button type="button" data-option="1"><span class="option-letter" aria-hidden="true" data-letter="B"></span><span data-option-text>提取組在 5 分鐘後和一週後都領先</span></button><button type="button" data-option="2"><span class="option-letter" aria-hidden="true" data-letter="C"></span><span data-option-text>5 分鐘後重讀組領先，一週後提取組領先</span></button></div><div class="feedback" data-feedback hidden tabindex="-1"><div data-result-text></div><p data-correct-choice></p><p>把兩次測驗分開看。5 分鐘後，讀兩次的那組回憶得較多（81% 對 75%）。一週後，讀一次再閉書回想的那組回憶得較多（56% 對 42%）。答案中的「提取組」，指的就是先讀一次再閉書回想的那組。 <span hidden data-source-anchor="S01:wiki/sources/S01-roediger-karpicke-2006.md:51 S01:wiki/sources/S01-roediger-karpicke-2006.md:52 S01:wiki/sources/S01-roediger-karpicke-2006.md:53 S01:wiki/sources/S01-roediger-karpicke-2006.md:59 S01:wiki/sources/S01-roediger-karpicke-2006.md:60 S01:wiki/sources/S01-roediger-karpicke-2006.md:61">[S01]</span></p></div><div class="quiz-actions"><button type="button" class="secondary-action" data-quiz-review="p04" hidden></button><button type="button" class="primary-action" data-quiz-next data-next-page hidden></button></div></article></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S01"><a class="work-title" lang="en" href="../wiki/sources/S01-roediger-karpicke-2006.html">Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention</a><p class="work-author" lang="en">Roediger &amp; Karpicke (2006)</p><ul><li class="source-location"><span>第 2 題解析</span> <a href="../wiki/sources/S01-roediger-karpicke-2006.html#L51" data-wiki-ref="S01:wiki/sources/S01-roediger-karpicke-2006.md:51 S01:wiki/sources/S01-roediger-karpicke-2006.md:52 S01:wiki/sources/S01-roediger-karpicke-2006.md:53 S01:wiki/sources/S01-roediger-karpicke-2006.md:59 S01:wiki/sources/S01-roediger-karpicke-2006.md:60 S01:wiki/sources/S01-roediger-karpicke-2006.md:61">文獻筆記第 51–53、59–61 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>第 1 題解析</span> <a href="../wiki/topics/03-common-study-methods.html#L91" data-wiki-ref="S06:wiki/topics/03-common-study-methods.md:91">常見讀書方法第 91 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p11" hidden><div class="slide slide-p11"><div class="slide-heading"><h2 id="title-p11" tabindex="-1"><span class="quiz-heading-prefix">自我測驗<span class="quiz-heading-divider">｜</span></span><span class="keep-together">下一次</span>讀書怎麼做？</h2></div><div class="quiz-body"><article class="quiz-card panel" data-question="q3" data-answer="0" aria-labelledby="q3-prompt"><div class="question-count" data-label="第 3 題，共 5 題" role="img" aria-label="第 3 題，共 5 題"></div><h2 id="q3-prompt" tabindex="-1">歷史講義已劃好重點。想練習解釋兩段內容怎麼連在一起，接下來怎麼做最合適？</h2><div class="choices"><button type="button" data-option="0"><span class="option-letter" aria-hidden="true" data-letter="A"></span><span data-option-text>闔上講義，用自己的話說出兩段的關係，再翻開核對</span></button><button type="button" data-option="1"><span class="option-letter" aria-hidden="true" data-letter="B"></span><span data-option-text>反覆閱讀各段劃線句，確認每句看起來都熟悉</span></button><button type="button" data-option="2"><span class="option-letter" aria-hidden="true" data-letter="C"></span><span data-option-text>把兩段劃線句逐字抄下，方便之後重看</span></button></div><div class="feedback" data-feedback hidden tabindex="-1"><div data-result-text></div><p data-correct-choice></p><p>把劃線當成找到重要句子的記號。要練的是兩段之間的關係，例如一段說原因，另一段說結果。闔上講義先用自己的話接起來，再翻回去核對。 <span hidden data-source-anchor="S06:wiki/topics/03-common-study-methods.md:91">[S06]</span></p></div><div class="quiz-actions"><button type="button" class="primary-action" data-quiz-next hidden></button></div></article><article class="quiz-card panel" data-question="q4" data-answer="1" aria-labelledby="q4-prompt" hidden><div class="question-count" data-label="第 4 題，共 5 題" role="img" aria-label="第 4 題，共 5 題"></div><h2 id="q4-prompt" tabindex="-1">哪一種安排用到了分散練習？</h2><div class="choices"><button type="button" data-option="0"><span class="option-letter" aria-hidden="true" data-letter="A"></span><span data-option-text>同一天連做三次同一內容</span></button><button type="button" data-option="1"><span class="option-letter" aria-hidden="true" data-letter="B"></span><span data-option-text>在不同天回想同一內容</span></button><button type="button" data-option="2"><span class="option-letter" aria-hidden="true" data-letter="C"></span><span data-option-text>把三份不同內容各安排一天，只練一次</span></button></div><div class="feedback" data-feedback hidden tabindex="-1"><div data-result-text></div><p data-correct-choice></p><p>想像你今天練一疊單字卡，改天拿出同一疊再答。這疊卡的練習分到了不同天。每天練一疊內容不同的新卡，每個單字仍只出現一次。 <span hidden data-source-anchor="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:14">[S06]</span></p></div><div class="quiz-actions"><button type="button" class="primary-action" data-quiz-next hidden></button></div></article><article class="quiz-card panel" data-question="q5" data-answer="0" aria-labelledby="q5-prompt" hidden><div class="question-count" data-label="第 5 題，共 5 題" role="img" aria-label="第 5 題，共 5 題"></div><h2 id="q5-prompt" tabindex="-1">想練習辨認不同體積題該用哪個公式，哪個做法符合交錯練習？</h2><div class="choices"><button type="button" data-option="0"><span class="option-letter" aria-hidden="true" data-letter="A"></span><span data-option-text>穿插不同體積題，每題先判斷適用公式</span></button><button type="button" data-option="1"><span class="option-letter" aria-hidden="true" data-letter="B"></span><span data-option-text>做完一整組同類題再換題型</span></button><button type="button" data-option="2"><span class="option-letter" aria-hidden="true" data-letter="C"></span><span data-option-text>只反覆練習目前最熟的題型</span></button></div><div class="feedback" data-feedback hidden tabindex="-1"><div data-result-text></div><p data-correct-choice></p><p>把不同的體積題放在一起，每題都有機會練「先認圖形，再選公式」。如果同一類排成一整組，題組就已經幫你提示了可以用哪一類方法。 <span hidden data-source-anchor="S04:wiki/topics/05-practical-applications.md:68 S04:wiki/topics/05-practical-applications.md:69">[S04]</span></p></div><div class="quiz-actions"><button type="button" class="primary-action" data-quiz-next data-next-page hidden></button></div></article></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S04"><a class="work-title" lang="en" href="../wiki/sources/S04-dunlosky-et-al-2013.html">Improving Students’ Learning With Effective Learning Techniques: Promising Directions From Cognitive and Educational Psychology</a><p class="work-author" lang="en">Dunlosky, Rawson, Marsh, Nathan, &amp; Willingham (2013)</p><ul><li class="source-location"><span>第 5 題解析</span> <a href="../wiki/topics/05-practical-applications.html#L68" data-wiki-ref="S04:wiki/topics/05-practical-applications.md:68 S04:wiki/topics/05-practical-applications.md:69">實際應用第 68–69 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>第 3 題解析</span> <a href="../wiki/topics/03-common-study-methods.html#L91" data-wiki-ref="S06:wiki/topics/03-common-study-methods.md:91">常見讀書方法第 91 行</a></li><li class="source-location"><span>第 4 題解析</span> <a href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html#L14" data-wiki-ref="S06:wiki/sources/S06-weinstein-madan-sumeracki-2018.md:14">文獻筆記第 14 行</a></li></ul></li></ul></details></footer></div></section>
+<section data-page="p12" hidden><div class="slide slide-p12"><div class="slide-heading"><h2 id="title-p12" tabindex="-1">下次讀書，從一個改變開始</h2></div><div class="lesson-body body-p12"><figure class="panel tiles takeaways"><ul><li><span class="mini closed-book" aria-hidden="true"><i></i><i></i><i></i></span><span><span class="phrase">闔書回想</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">用自己的話說出講義最想說明的事，再翻回核對。</span></span></li><li><span class="mini spaced" aria-hidden="true"><i></i><i></i><i></i></span><span><span class="phrase">分天再練</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">改天再拿出同一份題目，看看自己還答得出哪些。</span></span></li><li><span class="mini mixed" aria-hidden="true"><i></i><i></i><i></i></span><span><span class="phrase">穿插題型</span><span class="punctuation" aria-hidden="true">｜</span><span class="detail">看到下一題時，先說哪個特徵讓你選了這個方法。</span></span></li></ul><span hidden data-source-anchor="S01:wiki/topics/05-practical-applications.md:24 S02:wiki/topics/05-practical-applications.md:107 S04:wiki/topics/05-practical-applications.md:68 S04:wiki/topics/05-practical-applications.md:69 S06:wiki/topics/03-common-study-methods.md:91">[S01；S02；S04；S06]</span></figure></div><footer class="page-sources" data-page-sources><details><summary>本頁來源</summary><ul class="source-list"><li class="source-work" data-work-id="S01"><a class="work-title" lang="en" href="../wiki/sources/S01-roediger-karpicke-2006.html">Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention</a><p class="work-author" lang="en">Roediger &amp; Karpicke (2006)</p><ul><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L24" data-wiki-ref="S01:wiki/topics/05-practical-applications.md:24">實際應用第 24 行</a></li></ul></li><li class="source-work" data-work-id="S02"><a class="work-title" lang="en" href="../wiki/sources/S02-cepeda-et-al-2006.html">Distributed Practice in Verbal Recall Tasks: A Review and Quantitative Synthesis</a><p class="work-author" lang="en">Cepeda, Pashler, Vul, Wixted, &amp; Rohrer (2006)</p><ul><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L107" data-wiki-ref="S02:wiki/topics/05-practical-applications.md:107">實際應用第 107 行</a></li></ul></li><li class="source-work" data-work-id="S04"><a class="work-title" lang="en" href="../wiki/sources/S04-dunlosky-et-al-2013.html">Improving Students’ Learning With Effective Learning Techniques: Promising Directions From Cognitive and Educational Psychology</a><p class="work-author" lang="en">Dunlosky, Rawson, Marsh, Nathan, &amp; Willingham (2013)</p><ul><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/05-practical-applications.html#L68" data-wiki-ref="S04:wiki/topics/05-practical-applications.md:68 S04:wiki/topics/05-practical-applications.md:69">實際應用第 68–69 行</a></li></ul></li><li class="source-work" data-work-id="S06"><a class="work-title" lang="en" href="../wiki/sources/S06-weinstein-madan-sumeracki-2018.html">Teaching the science of learning</a><p class="work-author" lang="en">Weinstein, Madan, &amp; Sumeracki (2018)</p><ul><li class="source-location"><span>練習做法</span> <a href="../wiki/topics/03-common-study-methods.html#L91" data-wiki-ref="S06:wiki/topics/03-common-study-methods.md:91">常見讀書方法第 91 行</a></li></ul></li></ul></details></footer></div></section></main><script>(() => {
+  "use strict";
+
+  const pages = [...document.querySelectorAll("[data-page]")];
+  const previous = document.querySelector("[data-prev]");
+  const next = document.querySelector("[data-next]");
+  const counter = document.querySelector("[data-counter]");
+  const progress = document.querySelector("[data-progress]");
+  const resume = document.querySelector("[data-resume-quiz]");
+  let current = 0;
+  let returnToQuiz = null;
+
+  function showPage(index, focus = true) {
+    if (index < 0 || index >= pages.length) return;
+
+    pages[current].hidden = true;
+    current = index;
+    pages[current].hidden = false;
+    previous.disabled = current === 0;
+    next.disabled = current === pages.length - 1;
+    resume.hidden = returnToQuiz === null;
+    counter.textContent = `${String(current + 1).padStart(2, "0")} / ${pages.length}`;
+    progress.style.setProperty("--progress", (current + 1) / pages.length);
+    if (focus) {
+      pages[current].querySelector(".slide-heading :is(h1, h2)").focus({preventScroll: true});
+      window.scrollTo(0, 0);
+    }
+  }
+
+  function turn(delta) {
+    if (!pages[current + delta]) return;
+    returnToQuiz = null;
+    showPage(current + delta);
+  }
+
+  previous.addEventListener("click", () => turn(-1));
+  next.addEventListener("click", () => turn(1));
+  resume.addEventListener("click", () => {
+    const destination = returnToQuiz;
+    returnToQuiz = null;
+    showPage(destination);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented) return;
+    const delta = {ArrowLeft: -1, ArrowRight: 1}[event.key];
+    if (delta) {
+      event.preventDefault();
+      turn(delta);
+    }
+  });
+
+  for (const question of document.querySelectorAll("[data-question]")) {
+    const choices = [...question.querySelectorAll("[data-option]")];
+    const answer = choices[Number(question.dataset.answer)];
+    const feedback = question.querySelector("[data-feedback]");
+    const advance = question.querySelector("[data-quiz-next]");
+    const review = question.querySelector("[data-quiz-review]");
+    const endsPage = advance.hasAttribute("data-next-page");
+    let answered = false;
+
+    for (const choice of choices) {
+      choice.addEventListener("click", () => {
+        if (answered) return;
+        answered = true;
+        const correct = choice === answer;
+        choice.dataset.selected = "true";
+        answer.dataset.correct = "true";
+        for (const option of choices) option.setAttribute("aria-disabled", "true");
+
+        feedback.dataset.result = correct ? "correct" : "incorrect";
+        feedback.querySelector("[data-result-text]").textContent = correct ? "答對了" : "答錯了";
+        feedback.querySelector("[data-correct-choice]").textContent =
+          `正確答案　${answer.querySelector("[data-option-text]").textContent}`;
+        feedback.hidden = false;
+        advance.textContent = endsPage ? "下一頁 →" : "下一題 →";
+        advance.hidden = false;
+        if (review) {
+          review.textContent = "回看第 4 頁";
+          review.hidden = false;
+        }
+        feedback.focus({preventScroll: true});
+        feedback.scrollIntoView({block: "nearest"});
+      });
+    }
+
+    advance.addEventListener("click", () => {
+      if (endsPage) {
+        turn(1);
+        return;
+      }
+      const following = question.nextElementSibling;
+      question.hidden = true;
+      following.hidden = false;
+      following.querySelector("h2").focus({preventScroll: true});
+      window.scrollTo(0, 0);
+    });
+    if (review) {
+      review.addEventListener("click", () => {
+        returnToQuiz = current;
+        showPage(pages.findIndex(page => page.dataset.page === review.dataset.quizReview));
+      });
+    }
+  }
+
+  document.title = `${pages[0].querySelector("h1").textContent}——學習與記憶心理學`;
+  showPage(0, false);
+})();
+</script></body></html>
